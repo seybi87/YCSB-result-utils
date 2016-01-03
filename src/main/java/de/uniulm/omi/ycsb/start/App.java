@@ -26,7 +26,7 @@ public class App {
 
         ResultType resultType = config.getResultType();
 
-        LOGGER.debug(resultType.toString());
+        LOGGER.debug(config.getInputPath());
 
         switch (resultType){
             case HISTOGRAM:

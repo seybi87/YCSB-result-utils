@@ -70,4 +70,14 @@ public class CommandLinePropertiesAccessorImpl implements CommandLinePropertiesA
     public ResultType getResultType() {
         return ResultType.valueOf(this.getCommandLineOption("ResultType"));
     }
+
+    @Override
+    public String getInputPath() {
+        return this.getCommandLineOption("InputPath");
+    }
+
+    @Override
+    public String getOutputPath() {
+        return this.getCommandLineOption("OutputPath");
+    }
 }

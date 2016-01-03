@@ -16,3 +16,6 @@ output*
 *.iws
 
 .DS_Store
+
+#ignore log files
+*.log

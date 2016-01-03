@@ -8,4 +8,7 @@ import de.uniulm.omi.ycsb.result.ResultType;
 public interface CommandLinePropertiesAccessor {
 
     ResultType getResultType();
+
+    String getInputPath();
+    String getOutputPath();
 }

@@ -8,7 +8,9 @@ import de.uniulm.omi.ycsb.result.ResultType;
 public class CommandLineProperty {
 
     public static CommandLineProperty[] commandLineProperties = {
-            new CommandLineProperty("ResultType", "ResultType", "Specify the YCSB result: timeseries or histogram", ResultType.TIMESERIES.toString())
+            new CommandLineProperty("ResultType", "ResultType", "Specify the YCSB result: timeseries or histogram", ResultType.TIMESERIES.toString()),
+            new CommandLineProperty("InputPath", "InputPath", "todo", System.getProperty("user.dir") + System.getProperty("file.separator") + "input" ),
+            new CommandLineProperty("OutputPath", "OutputPath", "todo", System.getProperty("user.dir") + System.getProperty("file.separator") + "output")
     };
 
     private final String name;
