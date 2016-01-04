@@ -10,5 +10,8 @@ public interface CommandLinePropertiesAccessor {
     ResultType getResultType();
 
     String getInputPath();
+    String getMergedPath();
     String getOutputPath();
+
+    int numberOfClients();
 }

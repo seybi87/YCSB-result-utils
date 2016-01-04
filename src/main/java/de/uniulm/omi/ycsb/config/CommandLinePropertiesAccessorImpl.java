@@ -77,7 +77,17 @@ public class CommandLinePropertiesAccessorImpl implements CommandLinePropertiesA
     }
 
     @Override
+    public String getMergedPath() {
+        return this.getCommandLineOption("MergedPath");
+    }
+
+    @Override
     public String getOutputPath() {
         return this.getCommandLineOption("OutputPath");
+    }
+
+    @Override
+    public int numberOfClients() {
+        return Integer.valueOf(this.getCommandLineOption("NumberOfClients"));
     }
 }

@@ -6,7 +6,7 @@ import de.uniulm.omi.ycsb.result.ResultType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import static de.uniulm.omi.ycsb.result.ResultType.HISTOGRAM;
+import java.util.regex.Pattern;
 
 
 /**
@@ -19,7 +19,7 @@ public class App {
 
     public static void main (String args[]){
 
-
+        LOGGER.debug(Pattern.matches("\\d\\d\\d\\d-\\d\\d-\\d\\d.*", "2015-12-28 16:44:44:856 10 sec: 6645 operations; 664.43 current ops/sec; es"));
         // Process config
         LOGGER.info("Process config...");
         CommandLinePropertiesAccessor config = new CommandLinePropertiesAccessorImpl(args);
@@ -33,8 +33,14 @@ public class App {
                 LOGGER.info("Historgram: not yet implemented");
                 break;
             case TIMESERIES:
-                LOGGER.info("Timeseries: not yet implemented");
+                processTimeseriesData(config);
                 break;
         }
+    }
+
+    public static void processTimeseriesData(CommandLinePropertiesAccessor config){
+        LOGGER.info("starting to process TIMESERIES data...");
+        TimeseriesWorker timeseriesWorker = new TimeseriesWorker(config.getInputPath(), config.getMergedPath(), config.getOutputPath());
+        timeseriesWorker.mergeClients();
     }
 }

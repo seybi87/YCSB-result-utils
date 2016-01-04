@@ -10,7 +10,9 @@ public class CommandLineProperty {
     public static CommandLineProperty[] commandLineProperties = {
             new CommandLineProperty("ResultType", "ResultType", "Specify the YCSB result: timeseries or histogram", ResultType.TIMESERIES.toString()),
             new CommandLineProperty("InputPath", "InputPath", "todo", System.getProperty("user.dir") + System.getProperty("file.separator") + "input" ),
-            new CommandLineProperty("OutputPath", "OutputPath", "todo", System.getProperty("user.dir") + System.getProperty("file.separator") + "output")
+            new CommandLineProperty("MergedPath", "MergedPath", "todo", System.getProperty("user.dir") + System.getProperty("file.separator") + "merged"),
+            new CommandLineProperty("OutputPath", "OutputPath", "todo", System.getProperty("user.dir") + System.getProperty("file.separator") + "output"),
+            new CommandLineProperty("NumberOfClients", "NumberOfClients", "todo", "1")
     };
 
     private final String name;
@@ -40,4 +42,6 @@ public class CommandLineProperty {
     public String getDefaultValue() {
         return defaultValue;
     }
+
+
 }
