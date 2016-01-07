@@ -100,6 +100,14 @@ public class TimeseriesWorker extends ResultWorker {
             output = this.parseTimeseries(rows);
             return output;
 
+        }else if(Pattern.matches("\\[OVERALL\\], RunTime.*",rows.get(0))){
+
+            output = this.parseClientRuntimes(rows);
+            return output;
+        }else if(Pattern.matches("\\[OVERALL\\], Throughput.*",rows.get(0))){
+
+            output = this.parseOverallThroughput(rows);
+            return output;
         }
 
 
@@ -151,6 +159,60 @@ public class TimeseriesWorker extends ResultWorker {
             output = runtime + "," + currentOps;
             return output;
 
+    }
+
+    /**
+     * Parses the runtimes on per client base
+     * @param rows
+     * @return
+     */
+    private String parseClientRuntimes(Vector<String> rows){
+        String output = "\n";
+
+        double runtime;
+        int clientFileCounter = 1;
+
+        for (String row : rows) {
+
+            //extract measurements: 0=[OVERALL] tag, 1=Runtime(ms), 2=totaloperations
+            String[] splittedRow = row.split(",");
+
+            //check for runtime
+            runtime = Double.valueOf(splittedRow[2].trim());
+            output += "Client" + clientFileCounter + ": " + splittedRow[1] + ": " + runtime + "\n";
+
+            clientFileCounter++;
+        }
+
+
+        return output;
+    }
+
+    /**
+     * Parses the overall Throughput and sums it up
+     * @param rows
+     * @return
+     */
+    private String parseOverallThroughput(Vector<String> rows){
+        String output = "";
+
+        double totalOps = 0;
+        String totalOpsLabel="";
+
+        for (String row : rows) {
+
+            //extract measurements: 0=[OVERALL] tag, 1=Runtime(ms), 2=totaloperations
+            String[] splittedRow = row.split(",");
+
+            //extract and sum up total Throughput(ops/sec)
+            totalOps += Double.valueOf(splittedRow[2].trim());
+            totalOpsLabel = splittedRow[1].trim();
+
+        }
+
+        output += totalOpsLabel + ": " + totalOps;
+
+        return output;
     }
 
 

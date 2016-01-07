@@ -19,7 +19,6 @@ public class App {
 
     public static void main (String args[]){
 
-        LOGGER.debug(Pattern.matches("\\d\\d\\d\\d-\\d\\d-\\d\\d.*", "2015-12-28 16:44:44:856 10 sec: 6645 operations; 664.43 current ops/sec; es"));
         // Process config
         LOGGER.info("Process config...");
         CommandLinePropertiesAccessor config = new CommandLinePropertiesAccessorImpl(args);
