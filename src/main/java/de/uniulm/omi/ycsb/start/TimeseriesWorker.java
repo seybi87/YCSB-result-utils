@@ -34,6 +34,8 @@ public class TimeseriesWorker extends ResultWorker {
         PrintWriter pWriter = null;
         int numberOfFiles = this.getNumberOfInputFiles();
 
+        String row = null;
+
         try{
             String [] filenames = new File(this.inputPath).list();
             Vector<BufferedReader> readers = new Vector<BufferedReader>();
@@ -48,73 +50,109 @@ public class TimeseriesWorker extends ResultWorker {
                 clientDataVectors.add(new Vector<Integer>());
             }
 
-            String row;
-            double currentOps=0.0;
-            String extractedCurrentOps;
-            int runtime = 0;
 
-            //print start line
-            pWriter.println(runtime + "," + currentOps);
+            //collection of one row per client file
+            Vector<String> rows = new Vector<String>();
+
+            String output;
+
 
             //read file line by line, files have to have same length
             while(readers.get(0).ready()){
 
-                currentOps = 0;
-
                 //read one lines of all files and extract current ops per s
-                for(int i=0; i<readers.size(); i++){
+                for(int i=0; i<readers.size(); i++) {
 
                     row = readers.get(i).readLine();
-                    LOGGER.debug(row);
-
-                    //check if measurement row, starting with e.g. 2015-12-28 some more stuff"
-                    if(Pattern.matches("\\d\\d\\d\\d-\\d\\d-\\d\\d.*", row)){
-
-                        String [] splittedRow = row.split(";");
-
-
-                        //extract runtime
-                        String extractedRuntime = splittedRow[1];
-                        extractedRuntime = extractedRuntime.trim();
-                        if(i>0 && (Integer.valueOf(extractedRuntime) != runtime)){
-                            throw new RuntimeException("Unequal runtimes in files! Current runtime: " + runtime + " extracted runtime: " +  extractedRuntime);
-                        }
-                        runtime = Integer.valueOf(extractedRuntime);
-
-                        //check for first row
-                        if(runtime == 0){
-                            currentOps = 0;
-
-                        }else{
-                            //extract measurements: 0=date, 1=runtime, 2=unit, 3=finished operations 4=current ops/s
-                            extractedCurrentOps = splittedRow[4];
-                            extractedCurrentOps = extractedCurrentOps.replace("current ops/sec","");
-                            extractedCurrentOps = extractedCurrentOps.trim();
-
-                            currentOps += Double.valueOf(extractedCurrentOps);
-                        }
-
-                    }else if(Pattern.matches("[OVERALL]", row)){
-                        //TODO
-                    }
-
+                    rows.add(row);
+                    //LOGGER.debug(row);
                 }
 
-                //write result of current read line, if measuremtns are extracted
-                if(runtime != 0 && currentOps != 0.0){
-                    pWriter.println(runtime + "," + currentOps);
+                output = this.parseRows(rows);
+
+                if(output != null){
+                    pWriter.println(output);
                 }
+
+                //clear rows vector
+                rows.clear();
+
 
             }
 
             pWriter.close();
 
 
+
         }catch (Exception e){
+            LOGGER.error("Error row: " + row);
             LOGGER.error("An error occured during merging the timeseries data", e);
         }
 
     }
+
+    private String parseRows(Vector<String> rows){
+
+        String output;
+        //check pattern only for one row because file must have the same structure
+        if(Pattern.matches("\\d\\d\\d\\d-\\d\\d-\\d\\d.*", rows.get(0))){
+
+            output = this.parseTimeseries(rows);
+            return output;
+
+        }
+
+
+        return null;
+    }
+
+    private String parseTimeseries(Vector<String> rows){
+
+        String output;
+        double currentOps = 0;
+        int runtime=0;
+        String extractedCurrentOps;
+
+            for (String row : rows) {
+
+                String[] splittedRow = row.split(";");
+
+                //check for first timeseries row with only 5 fields
+                if(splittedRow.length == 5){
+                    output = "Timeseries, current ops/s\n0,0";
+                    return output;
+                }
+
+
+                //extract runtime
+                String extractedRuntime = splittedRow[1];
+                extractedRuntime = extractedRuntime.trim();
+
+                if(rows.size() > 1 && runtime > 0 && (Integer.valueOf(extractedRuntime) != runtime)){
+                    throw new RuntimeException("Unequal runtimes in files! Current runtime: " + runtime + " extracted runtime: " +  extractedRuntime);
+                }
+                runtime = Integer.valueOf(extractedRuntime);
+
+                //check for first row
+                if (runtime == 0) {
+                    currentOps = 0;
+
+                } else {
+                    //extract measurements: 0=date, 1=runtime, 2=unit, 3=finished operations 4=current ops/s
+                    extractedCurrentOps = splittedRow[4];
+                    extractedCurrentOps = extractedCurrentOps.replace("current ops/sec", "");
+                    extractedCurrentOps = extractedCurrentOps.trim();
+
+                    currentOps += Double.valueOf(extractedCurrentOps);
+                }
+
+            }
+
+            output = runtime + "," + currentOps;
+            return output;
+
+    }
+
 
 
     /**
